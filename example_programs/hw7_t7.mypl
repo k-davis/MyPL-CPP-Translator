@@ -1,0 +1,35 @@
+
+struct S
+    var b = new B; 
+end
+
+struct B 
+    var t = true;
+end 
+
+fun B g(a: B)
+    return a.t;
+end
+
+fun boolean f(a: S)
+    return g(a.b);
+end 
+
+var s = new S;
+
+if( (f(s) and s.b.t) and g(s.b)) then
+    print("Pass\n");
+end
+
+
+fun int degrade(i: int)
+    if(i == 0) then
+        return 0;
+    else 
+        return degrade(i - 1);
+    end
+end
+
+if (degrade(24) == 0) then
+    print("Pass\n");
+end
