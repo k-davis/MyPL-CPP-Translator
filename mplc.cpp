@@ -19,8 +19,13 @@ int main(int argc, char **argv)
 {
     compileSettings settings;
     parseArguments(&settings, argc, argv);
-    printSettings(settings);
-    //system("python hw7.py example_programs/hw7_t1.mypl");
+    //printSettings(settings);
+
+    string command = "python transpile.py ";
+    command += settings.isOutputSpecified ? settings.outputFilename : "";
+
+    system(command.c_str());
+
     return 0;
 }
 
@@ -34,7 +39,7 @@ void printSettings(compileSettings settings)
 
 void parseArguments(compileSettings *settings, int argc, char **argv)
 {
-    if (argc == 1)
+    if (argc <= 1)
     {
         usageError("Error: Insufficient arguments.");
     }
