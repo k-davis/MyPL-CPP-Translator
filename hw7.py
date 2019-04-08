@@ -12,14 +12,16 @@ import mypl_token as token
 import mypl_parser as parser
 import mypl_ast as ast
 import mypl_type_checker as type_checker
-import mypl_interpreter as interpreter
+import mypl_translator as translator
 import sys
 
 
 def main(filename):
     try:
         file_stream = open(filename, 'r')
-        hw7(file_stream)
+        print_stream = open('source.cpp', 'w')
+        
+        hw7(file_stream, print_stream)
         file_stream.close()
     except FileNotFoundError:
         sys.exit('invalid filename %s' % filename)
@@ -28,15 +30,13 @@ def main(filename):
         sys.exit(e)
 
 
-def hw7(file_stream):
+def hw7(file_stream, print_stream):
     the_lexer = lexer.Lexer(file_stream)
     the_parser = parser.Parser(the_lexer)
     stmt_list = the_parser.parse()
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
-    the_interpreter = interpreter.Interpreter()
-    the_interpreter.run(stmt_list)
-
+    the_translator = translator.TranslationVisitor(print_stream)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
