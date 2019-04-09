@@ -37,6 +37,7 @@ def hw7(file_stream, print_stream):
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
     the_translator = translator.TranslationVisitor(print_stream)
+    #stmt_list.accept(the_translator)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

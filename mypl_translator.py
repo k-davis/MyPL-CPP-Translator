@@ -22,6 +22,8 @@ class TranslationVisitor():
         self.__write("#include <iostream>\n")
         self.__write("\n")
         self.__write("using namespace std;\n")
+        self.__write("void print(string x)\n{\n")
+        self.__write("cout << x << endl;\n}\n")
         self.__write("int main()\n{")
         self.__write("\n")
         self.__write("return 0;\n")
