@@ -34,7 +34,35 @@ class TranslationVisitor():
         self.__write("\nstring itos(int x)\n{\n")
         self.__write("return to_string(x);\n}\n\n")
 
-        #TODO functions to add -> length, get, reads, readi, readf,itof, ftos, stoi, stof
+        #TODO functions to add -> stoi, stof
+        self.__write("\nint length(string x)\n{\n")
+        self.__write("return x.length();\n}\n\n")
+        
+        self.__write("\nchar get(int x, string y)\n{\n")
+        self.__write("if(x < 0 || x > y.length()){\n")
+        self.__write('return "";\n')
+        self.__write("} else {\n return y.at(x);\n}\n}\n\n")
+        
+        self.__write("\nstring reads()\n{\n")
+        self.__write("string x;\ncin >> x;\nreturn x;\n}\n\n")
+        
+        self.__write("\nint readi()\n{\n")
+        self.__write("int x;\ncin >> x;\nreturn x;\n}\n\n")
+        
+        self.__write("\nfloat readf()\n{\n")
+        self.__write("float x;\ncin >> x;\nreturn x;\n}\n\n")
+        
+        self.__write("\nfloat itof(int x)\n{\n")
+        self.__write("return (float)(x);\n}\n\n")
+        
+        self.__write("\nstring ftos(float x)\n{\n")
+        self.__write("return to_string(x);\n}\n\n")
+        
+        self.__write("\nint stoi(string x)\n{\n")
+        self.__write("return stoi(x);\n}\n\n")
+        
+        self.__write("\nfloat stof(string x)\n{\n")
+        self.__write("return stof(x);\n}\n\n")
 
         self.__write("int main()\n{\n")
 
