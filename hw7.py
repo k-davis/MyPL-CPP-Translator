@@ -18,8 +18,9 @@ import sys
 
 def main(filename):
     try:
+        print_file = 'source.cpp'
         file_stream = open(filename, 'r')
-        print_stream = open('source.cpp', 'w')
+        print_stream = open(print_file, 'w')
         
         hw7(file_stream, print_stream)
         file_stream.close()
@@ -37,9 +38,21 @@ def hw7(file_stream, print_stream):
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
     the_translator = translator.TranslationVisitor(print_stream)
-    #stmt_list.accept(the_translator)
+    stmt_list.accept(the_translator)
+    finish_file(print_stream)
+
+def finish_file(print_stream):
+    print_stream.write("return 0;\n")
+    print_stream.write("}")
+    print_stream.close()
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit('Usage: %s file' % sys.argv[0])
     main(sys.argv[1])
+
+
+
+
+
+

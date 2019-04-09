@@ -1,0 +1,20 @@
+print("hello world");
+
+var x = 5;
+var y = 10;
+while x > 0 and y < 15 do
+      set x = x- 1;
+      set y = y + 5;
+end
+
+print(itos(x));
+print(itos(y));
+
+
+if y > x then
+     print("true");
+end
+
+if not false then
+     print("False");
+end
