@@ -40,7 +40,7 @@ class TranslationVisitor():
         
         self.__write("\nchar get(int x, string y)\n{\n")
         self.__write("if(x < 0 || x > y.length()){\n")
-        self.__write('return "";\n')
+        self.__write('return \'\\0\';\n')
         self.__write("} else {\n return y.at(x);\n}\n}\n\n")
         
         self.__write("\nstring reads()\n{\n")
@@ -58,11 +58,11 @@ class TranslationVisitor():
         self.__write("\nstring ftos(float x)\n{\n")
         self.__write("return to_string(x);\n}\n\n")
         
-        self.__write("\nint stoi(string x)\n{\n")
-        self.__write("return stoi(x);\n}\n\n")
+        #self.__write("\nint stoi(string x)\n{\n")
+        #self.__write("return stoi(x);\n}\n\n")
         
-        self.__write("\nfloat stof(string x)\n{\n")
-        self.__write("return stof(x);\n}\n\n")
+        #self.__write("\nfloat stof(string x)\n{\n")
+        #self.__write("return stof(x);\n}\n\n")
 
         self.__write("int main()\n{\n")
 
