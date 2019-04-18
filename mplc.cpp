@@ -2,7 +2,7 @@
 
 using namespace std;
 
-struct compileSettings
+struct CompileArguments
 {
     bool shouldKeepCPP = false;
     bool isOutputSpecified = false;
@@ -10,34 +10,43 @@ struct compileSettings
     string outputFilename = "";
 };
 
-void printSettings(compileSettings);
-void parseArguments(compileSettings *, int, char **);
-void usageError(string);
-bool isMyPLFiletype(string);
+static const string CMD_TRANSLATE_START = "python hw7.py ";
+static const string CMD_COMPILE_CPP_START = "g++ __translated_source.cpp ";
+static const string CMD_RM_CPP = "rm __translated_source.cpp";
+
+static void execute(string);
+static void parseArguments(CompileArguments *, int, char **);
+static void usageError(string);
+static bool isMyPLFiletype(string);
+
 
 int main(int argc, char **argv)
 {
-    compileSettings settings;
+    CompileArguments settings;
     parseArguments(&settings, argc, argv);
-    //printSettings(settings);
 
-    string command = "python transpile.py ";
-    command += settings.isOutputSpecified ? settings.outputFilename : "";
+    string translateCommand = CMD_TRANSLATE_START + settings.myplFile;
+    execute(translateCommand);
 
-    system(command.c_str());
+	string compileCommand = CMD_COMPILE_CPP_START;
+	if (settings.isOutputSpecified) 
+		compileCommand += "-o " + settings.outputFilename;
+	
+
+	execute(compileCommand);
+
+	if (!settings.shouldKeepCPP) 
+		execute(CMD_RM_CPP);
+	
 
     return 0;
 }
 
-void printSettings(compileSettings settings)
-{
-    cout << "shouldKeepCPP: " << settings.shouldKeepCPP << endl;
-    cout << "isOutputSpecified: " << settings.isOutputSpecified << endl;
-    cout << "myplFile: " << settings.myplFile << endl;
-    cout << "outputFilename: " << settings.outputFilename << endl;
+void execute(string cmd){
+	system(cmd.c_str());
 }
 
-void parseArguments(compileSettings *settings, int argc, char **argv)
+void parseArguments(CompileArguments *settings, int argc, char **argv)
 {
     if (argc <= 1)
     {

@@ -18,7 +18,7 @@ import sys
 
 def main(filename):
     try:
-        print_file = 'source.cpp'
+        print_file = '__translated_source.cpp'
         file_stream = open(filename, 'r')
         print_stream = open(print_file, 'w')
         
