@@ -42,6 +42,7 @@ def files_together(print_stream, append_stream):
 
     end_of_file.close()
     app_stream.close()
+    os.remove("__temp_file.cpp")
     
 
 def hw7(file_stream, print_stream,temp_stream):
