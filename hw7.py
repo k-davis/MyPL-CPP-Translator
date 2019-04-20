@@ -14,32 +14,46 @@ import mypl_ast as ast
 import mypl_type_checker as type_checker
 import mypl_translator as translator
 import sys
+import os
 
 
 def main(filename):
     try:
-        print_file = '__translated_source.cpp'
+        print_file = '__temp_file.cpp'
         file_stream = open(filename, 'r')
-        print_stream = open(print_file, 'w')
-        
-        hw7(file_stream, print_stream)
+        print_stream = open(print_file, 'w')    
+        temp_stream = open("__translated_source.cpp", "w")
+        hw7(file_stream, print_stream, temp_stream)
         file_stream.close()
+        temp_stream.close()
+        files_together(print_file, "__translated_source.cpp")
     except FileNotFoundError:
         sys.exit('invalid filename %s' % filename)
     except error.MyPLError as e:
         file_stream.close()
         sys.exit(e)
 
+def files_together(print_stream, append_stream):
+    end_of_file = open(print_stream, "r")
+    app_stream = open(append_stream, "a")
 
-def hw7(file_stream, print_stream):
+    for line in end_of_file:
+        app_stream.write(line)
+
+    end_of_file.close()
+    app_stream.close()
+    
+
+def hw7(file_stream, print_stream,temp_stream):
     the_lexer = lexer.Lexer(file_stream)
     the_parser = parser.Parser(the_lexer)
     stmt_list = the_parser.parse()
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
-    the_translator = translator.TranslationVisitor(print_stream)
+    the_translator = translator.TranslationVisitor(print_stream, temp_stream)
     stmt_list.accept(the_translator)
     finish_file(print_stream)
+
 
 def finish_file(print_stream):
     print_stream.write("return 0;\n")
