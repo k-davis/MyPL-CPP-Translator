@@ -12,6 +12,7 @@ import mypl_token as token
 import mypl_parser as parser
 import mypl_ast as ast
 import mypl_type_checker as type_checker
+import mypl_name_mangler as name_mangler
 import mypl_translator as translator
 import sys
 import os
@@ -47,12 +48,19 @@ def files_together(print_stream, append_stream):
 
 def hw7(file_stream, print_stream,temp_stream):
     the_lexer = lexer.Lexer(file_stream)
+
     the_parser = parser.Parser(the_lexer)
     stmt_list = the_parser.parse()
+    
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
+
+    the_name_mangler = name_mangler.NameMangler()
+    stmt_list.accept(the_name_mangler)
+
     the_translator = translator.TranslationVisitor(print_stream, temp_stream)
     stmt_list.accept(the_translator)
+    
     finish_file(print_stream)
 
 
