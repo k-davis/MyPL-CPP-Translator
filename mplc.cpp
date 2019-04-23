@@ -19,7 +19,6 @@ static void parseArguments(CompileArguments *, int, char **);
 static void usageError(string);
 static bool isMyPLFiletype(string);
 
-
 int main(int argc, char **argv)
 {
     CompileArguments settings;
@@ -28,22 +27,31 @@ int main(int argc, char **argv)
     string translateCommand = CMD_TRANSLATE_START + settings.myplFile;
     execute(translateCommand);
 
-	string compileCommand = CMD_COMPILE_CPP_START;
-	if (settings.isOutputSpecified) 
-		compileCommand += "-o " + settings.outputFilename;
-	
+    string compileCommand = CMD_COMPILE_CPP_START;
+    if (settings.isOutputSpecified)
+        compileCommand += "-o " + settings.outputFilename;
 
-	execute(compileCommand);
+    execute(compileCommand);
 
-	if (!settings.shouldKeepCPP) 
-		execute(CMD_RM_CPP);
-	
+    if (settings.shouldKeepCPP)
+    {
+        if (settings.isOutputSpecified)
+        {
+            string renameCommand = "mv __translated_source.cpp " + settings.outputFilename + ".cpp";
+            execute(renameCommand);
+        }
+    }
+    else
+    {
+        execute(CMD_RM_CPP);
+    }
 
     return 0;
 }
 
-void execute(string cmd){
-	system(cmd.c_str());
+void execute(string cmd)
+{
+    system(cmd.c_str());
 }
 
 void parseArguments(CompileArguments *settings, int argc, char **argv)

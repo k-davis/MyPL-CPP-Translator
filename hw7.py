@@ -22,7 +22,7 @@ def main(filename):
     try:
         print_file = '__temp_file.cpp'
         file_stream = open(filename, 'r')
-        print_stream = open(print_file, 'w')    
+        print_stream = open(print_file, 'w')
         temp_stream = open("__translated_source.cpp", "w")
         hw7(file_stream, print_stream, temp_stream)
         file_stream.close()
@@ -34,6 +34,7 @@ def main(filename):
         file_stream.close()
         sys.exit(e)
 
+
 def files_together(print_stream, append_stream):
     end_of_file = open(print_stream, "r")
     app_stream = open(append_stream, "a")
@@ -44,14 +45,14 @@ def files_together(print_stream, append_stream):
     end_of_file.close()
     app_stream.close()
     os.remove("__temp_file.cpp")
-    
 
-def hw7(file_stream, print_stream,temp_stream):
+
+def hw7(file_stream, print_stream, temp_stream):
     the_lexer = lexer.Lexer(file_stream)
 
     the_parser = parser.Parser(the_lexer)
     stmt_list = the_parser.parse()
-    
+
     the_type_checker = type_checker.TypeChecker()
     stmt_list.accept(the_type_checker)
 
@@ -60,7 +61,7 @@ def hw7(file_stream, print_stream,temp_stream):
 
     the_translator = translator.TranslationVisitor(print_stream, temp_stream)
     stmt_list.accept(the_translator)
-    
+
     finish_file(print_stream)
 
 
@@ -69,13 +70,8 @@ def finish_file(print_stream):
     print_stream.write("}")
     print_stream.close()
 
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit('Usage: %s file' % sys.argv[0])
     main(sys.argv[1])
-
-
-
-
-
-

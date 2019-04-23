@@ -2,17 +2,14 @@ import mypl_token as token
 import mypl_ast as ast
 
 
-
 class NameMangler(ast.Visitor):
-  
+
     def mangle_token(self, token):
         token.lexeme = "mypl_" + token.lexeme
 
     def visit_stmt_list(self, stmt_list):
         for stmt in stmt_list.stmts:
             stmt.accept(self)
-
-        
 
     def visit_expr_stmt(self, expr_stmt):
         expr_stmt.expr.accept(self)
@@ -22,7 +19,7 @@ class NameMangler(ast.Visitor):
         self.mangle_token(var_decl.var_id)
 
     def visit_assign_stmt(self, assign_stmt):
-        
+
         assign_stmt.rhs.accept(self)
         assign_stmt.lhs.accept(self)
 
@@ -48,13 +45,15 @@ class NameMangler(ast.Visitor):
         expr.first_operand.accept(self)
         expr.rest.accept(self)
 
-
     def visit_bool_expr(self, b_expr):
         b_expr.first_expr.accept(self)
 
-        if b_expr.second_expr and b_expr.rest:
+        if b_expr.bool_rel:
+            b_expr.second_expr.accept(self)
+
+        if b_expr.bool_connector:
             b_expr.rest.accept(self)
-            
+
     def visit_lvalue(self, lval):
         for tkn in lval.path:
             self.mangle_token(tkn)
@@ -72,7 +71,6 @@ class NameMangler(ast.Visitor):
         if if_stmt.has_else:
             if_stmt.else_stmts.accept(self)
 
-
     def visit_while_stmt(self, while_stmt):
         while_stmt.bool_expr.accept(self)
 
@@ -84,7 +82,6 @@ class NameMangler(ast.Visitor):
         for v_decl in struct_decl.var_decls:
             v_decl.accept(self)
 
-
     def visit_fun_decl_stmt(self, fun_decl):
         self.mangle_token(fun_decl.fun_name)
         for param in fun_decl.params:
@@ -95,4 +92,3 @@ class NameMangler(ast.Visitor):
     def visit_return_stmt(self, return_stmt):
         if return_stmt.return_expr:
             return_stmt.return_expr.accept(self)
-          
