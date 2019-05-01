@@ -161,22 +161,25 @@ class TranslationVisitor():
         self.__write(')')
 
     def visit_id_rvalue(self, id_rvalue): 
-        if len(id_rvalue.path) > 1:
-            for i in id_rvalue.path:
-                if i != id_rvalue.path[-1]:
-                    self.__write(i.lexeme + ".")
-                else:
+        if self.write_var_info == True:
+            if len(id_rvalue.path) > 1:
+                for i in id_rvalue.path:
+                    if i != id_rvalue.path[-1]:
+                        self.__write(i.lexeme + ".")
+                    else:
+                        self.__write(i.lexeme)
+            else:
+                for i in id_rvalue.path:
                     self.__write(i.lexeme)
-        else:
-            for i in id_rvalue.path:
-                self.__write(i.lexeme)
 
 
     def visit_assign_stmt(self, assign_stmt): 
         self.__write(self.__indent())
         assign_stmt.lhs.accept(self)
         self.__write(" = ")
+        self.write_var_info = True
         assign_stmt.rhs.accept(self)
+        self.write_var_info = False
         self.__write(';\n')
 
     def visit_lvalue(self, lval): 
@@ -191,14 +194,15 @@ class TranslationVisitor():
                 self.__write(i.lexeme)
 
     def visit_complex_expr(self, complex_expr):
-        if type(complex_expr.first_operand) == str:
-            self.__write(complex_expr.first_operand)
-        else:
-            self.__write("(")
-            complex_expr.first_operand.accept(self)
-        self.__write(" " + complex_expr.math_rel.lexeme + " ")
-        complex_expr.rest.accept(self)
-        self.__write(")")
+        if self.write_var_info == True:
+            if type(complex_expr.first_operand) == str:
+                self.__write(complex_expr.first_operand)
+            else:
+                self.__write("(")
+                complex_expr.first_operand.accept(self)
+            self.__write(" " + complex_expr.math_rel.lexeme + " ")
+            complex_expr.rest.accept(self)
+            self.__write(")")
 
 
     def visit_if_stmt(self, if_stmt): 
