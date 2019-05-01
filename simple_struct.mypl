@@ -1,0 +1,19 @@
+struct S1 
+    var x = 0;
+    var y = 1;
+end
+
+var s1 = new S1;
+
+print("should print 0: " + itos(s1.x) + "\n");
+print("should print 1: " + itos(s1.y) + "\n");
+
+struct S2
+    var s1 = new S1;
+end
+
+var s2 = new S2;
+
+print("should print 0: " + itos(s2.s1.x) + "\n");
+print("should print 1: " + itos(s2.s1.y) + "\n");
+
