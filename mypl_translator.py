@@ -241,6 +241,7 @@ class TranslationVisitor():
 
         self.indent += 1
         for i in struct_decl.var_decls:
+            self.write_info = False
             self.__write(self.__indent())
             self.visit_struct_member(i)
         self.__write("};")
