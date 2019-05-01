@@ -89,12 +89,11 @@ class TranslationVisitor():
     def visit_call_rvalue(self, call_rvalue): 
         self.__write(call_rvalue.fun.lexeme)
         
-        self.write_var_info = True
         self.__write('(')
         for i in call_rvalue.args:
+            self.write_var_info = True
             i.accept(self)
         self.__write(')')
-        self.write_var_info = False
 
     def visit_simple_rvalue(self, simple_rvalue):
         if self.write_var_info == True:
@@ -314,7 +313,8 @@ class TranslationVisitor():
         self.__write(fun_param.param_name.lexeme)
         self.output_stream = temp
 
-    def visit_return_stmt(self, return_stmt):         
+    def visit_return_stmt(self, return_stmt):
+        self.write_var_info = True
         temp = self.output_stream
         self.output_stream = 'dummy_string'
 
@@ -326,3 +326,4 @@ class TranslationVisitor():
             return_stmt.return_expr.accept(self)
         self.__write(';\n')
         self.output_stream = temp
+        self.write_var_info = False
