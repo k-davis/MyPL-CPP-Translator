@@ -45,7 +45,7 @@ class TranslationVisitor():
         self.__write("using namespace std;\n")
 
         self.__write("\nvoid mypl_print(string x)\n{\n")
-        self.__write("\tcout << x << endl;\n}\n\n")
+        self.__write("\tcout << x;\n}\n\n")
 
         self.__write("\nstring mypl_itos(int x)\n{\n")
         self.__write("\treturn to_string(x);\n}\n\n")
