@@ -4,6 +4,8 @@
 import mypl_token as token
 import mypl_ast as ast
 
+PRIMITIVES = ['int', 'float', 'bool', 'string']
+
 
 class TranslationVisitor():
     """A pretty printer for turning a MyPL AST to a C++ source file"""
@@ -72,11 +74,11 @@ class TranslationVisitor():
         self.__write("\nstring mypl_ftos(float x)\n{\n")
         self.__write("return to_string(x);\n}\n\n")
 
-        #self.__write("\nint stoi(string x)\n{\n")
-        #self.__write("return stoi(x);\n}\n\n")
+        # self.__write("\nint stoi(string x)\n{\n")
+        # self.__write("return stoi(x);\n}\n\n")
 
-        #self.__write("\nfloat stof(string x)\n{\n")
-        #self.__write("return stof(x);\n}\n\n")
+        # self.__write("\nfloat stof(string x)\n{\n")
+        # self.__write("return stof(x);\n}\n\n")
 
         self.output_stream = self.hold_stream
         self.__write("int main()\n{\n")
@@ -94,23 +96,25 @@ class TranslationVisitor():
         self.__write(call_rvalue.fun.lexeme)
 
         self.__write('(')
-        for i in call_rvalue.args:
+        for i in range(len(call_rvalue.args)):
             self.write_var_info = True
-            i.accept(self)
+            call_rvalue.args[i].accept(self)
+            if i != len(call_rvalue.args) - 1:
+                self.__write(', ')
         self.__write(')')
 
     def visit_simple_rvalue(self, simple_rvalue):
-        if self.write_var_info == True:
-            self.var_decl_return_type = self.get_type_from_token(
-                simple_rvalue.val)
 
-            if simple_rvalue is not None:
-                if simple_rvalue.val.tokentype == token.STRINGVAL:
-                    self.__write('"')
-                    self.__write(simple_rvalue.val.lexeme)
-                    self.__write('"')
-                else:
-                    self.__write(simple_rvalue.val.lexeme)
+        self.var_decl_return_type = self.get_type_from_token(
+            simple_rvalue.val)
+
+        if simple_rvalue is not None:
+            if simple_rvalue.val.tokentype == token.STRINGVAL:
+                self.__write('"')
+                self.__write(simple_rvalue.val.lexeme)
+                self.__write('"')
+            else:
+                self.__write(simple_rvalue.val.lexeme)
 
     def get_type_from_token(self, t):
         if t.tokentype == token.BOOLVAL:
@@ -127,11 +131,18 @@ class TranslationVisitor():
     def visit_var_decl_stmt(self, var_decl):
         self.__write(self.__indent())
         self.write_var_info = False
-        var_decl.var_expr.accept(self)
+
+        var_type = self.get_var_decl_type(var_decl)
+
         self.write_var_info = True
-        if self.write_info == True:
-            var_decl.var_expr.accept(self)
+        if self.write_info == 'True':
+
+            self.__write(var_type)
+            if self.is_struct_type(var_type):
+                self.__write('*')
             self.__write(" " + var_decl.var_id.lexeme)
+            self.__write(" = ")
+            var_decl.var_expr.accept(self)
             self.__write(';\n')
         else:
             self.__write("auto ")
@@ -143,6 +154,9 @@ class TranslationVisitor():
             var_decl.var_expr.accept(self)
             self.__write(';\n')
         self.write_info = False
+
+    def is_struct_type(self, var_type):
+        return not var_type in PRIMITIVES
 
     def visit_while_stmt(self, while_stmt):
         self.__write(self.__indent())
@@ -183,7 +197,7 @@ class TranslationVisitor():
                 for i in id_rvalue.path:
                     self.var_decl_return_type = self.get_type_from_token(i)
                     if i != id_rvalue.path[-1]:
-                        self.__write(i.lexeme + ".")
+                        self.__write(i.lexeme + "->")
                     else:
                         self.__write(i.lexeme)
             else:
@@ -201,10 +215,11 @@ class TranslationVisitor():
         self.__write(';\n')
 
     def visit_lvalue(self, lval):
+
         if len(lval.path) > 1:
             for i in lval.path:
                 if i != lval.path[-1]:
-                    self.__write(i.lexeme + ".")
+                    self.__write(i.lexeme + "->")
                 else:
                     self.__write(i.lexeme)
         else:
@@ -269,21 +284,26 @@ class TranslationVisitor():
 
     def visit_struct_member(self, var_decl):
         self.__write(self.__indent())
-        self.write_var_info = False
-        var_decl.var_expr.accept(self)
-        self.write_var_info = True
+
+        var_type = self.get_var_decl_type(var_decl)
+
         if self.write_info == True:
-            var_decl.var_expr.accept(self)
+            self.__write(var_type)
+            if self.is_struct_type(var_type):
+                self.__write('*')
             self.__write(" " + var_decl.var_id.lexeme)
+            self.__write(' = ')
+
+            var_decl.var_expr.accept(self)
             self.__write(';\n')
         else:
-            var_type = self.get_var_decl_type(var_decl)
-
             if var_type:
                 self.__write(var_type + ' ')
-
             else:
                 self.__write("static const auto ")
+
+            if self.is_struct_type(var_type):
+                self.__write('*')
 
             self.__write(var_decl.var_id.lexeme)
 
@@ -310,8 +330,8 @@ class TranslationVisitor():
     def visit_new_rvalue(self, new_rvalue):
         self.var_decl_return_type = new_rvalue.struct_type.lexeme
 
-        if self.write_info == True:
-            self.__write(new_rvalue.struct_type.lexeme)
+        self.__write('new ')
+        self.__write(new_rvalue.struct_type.lexeme)
         self.write_info = True
 
     def visit_fun_decl_stmt(self, fun_decl):
@@ -319,6 +339,8 @@ class TranslationVisitor():
         self.output_stream = 'dummy_string'
 
         self.__write(fun_decl.return_type.lexeme)
+        if self.is_struct_type(fun_decl.return_type.lexeme):
+            self.__write('*')
         self.__write(' ')
         self.__write(fun_decl.fun_name.lexeme)
         self.__write('(')
@@ -339,6 +361,7 @@ class TranslationVisitor():
                 else:
                     item.accept(self)
                 count += 1
+
         self.__write(')')
         self.__write('{\n')
         fun_decl.stmt_list.accept(self)
@@ -351,6 +374,8 @@ class TranslationVisitor():
         self.output_stream = 'dummy_string'
 
         self.__write(fun_param.param_type.lexeme + " ")
+        if self.is_struct_type(fun_param.param_type.lexeme):
+            self.__write('*')
         self.__write(fun_param.param_name.lexeme)
         self.output_stream = temp
 

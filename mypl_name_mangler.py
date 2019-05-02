@@ -31,7 +31,7 @@ class NameMangler(ast.Visitor):
 
     def visit_simple_rvalue(self, r_val):
         if r_val.val.lexeme == 'nil':
-            r_val.val.lexeme = 'null'
+            r_val.val.lexeme = 'nullptr'
 
     def visit_new_rvalue(self, r_val):
         self.mangle_token(r_val.struct_type)
@@ -89,7 +89,15 @@ class NameMangler(ast.Visitor):
     def visit_fun_decl_stmt(self, fun_decl):
         self.mangle_token(fun_decl.fun_name)
 
+        if fun_decl.return_type.lexeme == 'nil':
+            fun_decl.return_type.lexeme = 'void'
+        elif fun_decl.return_type.lexeme == 'boolean':
+            fun_decl.return_type.lexeme = 'bool'
+        else:
+            self.mangle_token(fun_decl.return_type)
+
         for param in fun_decl.params:
+            self.mangle_token(param.param_type)
             self.mangle_token(param.param_name)
 
         fun_decl.stmt_list.accept(self)
