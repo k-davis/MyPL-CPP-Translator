@@ -11,7 +11,7 @@ class TranslationVisitor():
     def __init__(self, file_stream, temp_stream):
         self.write_info = False
         self.write_var_info = False
-        self.simple_rval_type = None
+        self.var_decl_return_type = None
         self.traverse_silently = False
         self.indent = 4  # to increase/decrease indent level
         self.output_stream = file_stream  # where printing to
@@ -101,7 +101,7 @@ class TranslationVisitor():
 
     def visit_simple_rvalue(self, simple_rvalue):
         if self.write_var_info == True:
-            self.simple_rval_type = self.get_type_from_token(
+            self.var_decl_return_type = self.get_type_from_token(
                 simple_rvalue.val)
 
             if simple_rvalue is not None:
@@ -181,12 +181,14 @@ class TranslationVisitor():
         if self.write_var_info == True:
             if len(id_rvalue.path) > 1:
                 for i in id_rvalue.path:
+                    self.var_decl_return_type = self.get_type_from_token(i)
                     if i != id_rvalue.path[-1]:
                         self.__write(i.lexeme + ".")
                     else:
                         self.__write(i.lexeme)
             else:
                 for i in id_rvalue.path:
+                    self.var_decl_return_type = self.get_type_from_token(i)
                     self.__write(i.lexeme)
 
     def visit_assign_stmt(self, assign_stmt):
@@ -210,6 +212,7 @@ class TranslationVisitor():
                 self.__write(i.lexeme)
 
     def visit_complex_expr(self, complex_expr):
+
         if self.write_var_info == True:
             if type(complex_expr.first_operand) == str:
                 self.__write(complex_expr.first_operand)
@@ -278,33 +281,35 @@ class TranslationVisitor():
 
             if var_type:
                 self.__write(var_type + ' ')
+
             else:
                 self.__write("static const auto ")
+
             self.__write(var_decl.var_id.lexeme)
-            if var_decl.var_type is not None:
-                self.__write(var_decl.var_type.lexeme)
 
             self.__write(" = ")
             var_decl.var_expr.accept(self)
-
-            print(self.simple_rval_type)
-            self.simple_rval_type = None
 
             self.__write(';\n')
         self.write_info = False
 
     def get_var_decl_type(self, var_decl):
-        self.traverse_silently = True
+        if var_decl.var_type:
+            return self.get_type_from_token(var_decl.var_type)
+        else:
+            self.traverse_silently = True
 
-        var_decl.var_expr.accept(self)
-        var_type = self.simple_rval_type
-        self.simple_rval_type = None
+            var_decl.var_expr.accept(self)
+            var_type = self.var_decl_return_type
+            self.var_decl_return_type = None
 
-        self.traverse_silently = False
+            self.traverse_silently = False
 
-        return var_type
+            return var_type
 
     def visit_new_rvalue(self, new_rvalue):
+        self.var_decl_return_type = new_rvalue.struct_type.lexeme
+
         if self.write_info == True:
             self.__write(new_rvalue.struct_type.lexeme)
         self.write_info = True

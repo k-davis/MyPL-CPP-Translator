@@ -4,8 +4,9 @@ import mypl_ast as ast
 
 class NameMangler(ast.Visitor):
 
-    def mangle_token(self, token):
-        token.lexeme = "mypl_" + token.lexeme
+    def mangle_token(self, t):
+        if t.tokentype == token.ID:
+            t.lexeme = "mypl_" + t.lexeme
 
     def visit_stmt_list(self, stmt_list):
         for stmt in stmt_list.stmts:
@@ -17,6 +18,8 @@ class NameMangler(ast.Visitor):
     def visit_var_decl_stmt(self, var_decl):
         var_decl.var_expr.accept(self)
         self.mangle_token(var_decl.var_id)
+        if var_decl.var_type:
+            self.mangle_token(var_decl.var_type)
 
     def visit_assign_stmt(self, assign_stmt):
 
@@ -27,7 +30,8 @@ class NameMangler(ast.Visitor):
         simple_expr.term.accept(self)
 
     def visit_simple_rvalue(self, r_val):
-        pass
+        if r_val.val.lexeme == 'nil':
+            r_val.val.lexeme = 'null'
 
     def visit_new_rvalue(self, r_val):
         self.mangle_token(r_val.struct_type)
@@ -84,6 +88,7 @@ class NameMangler(ast.Visitor):
 
     def visit_fun_decl_stmt(self, fun_decl):
         self.mangle_token(fun_decl.fun_name)
+
         for param in fun_decl.params:
             self.mangle_token(param.param_name)
 
